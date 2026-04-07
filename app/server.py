@@ -164,10 +164,14 @@ def _preview_hitex(file_path: Path) -> str:
                 global_max_x = max(global_max_x, p.x)
                 global_max_y = max(global_max_y, p.y)
 
-        all_layers.append((layer.layer_color or "#808080", tuft_segs))
+        all_layers.append((layer.layer_color or "#808080", tuft_segs, len(tuft_segs)))
 
     if not all_layers:
         return ""
+
+    # Sort: draw fill layers (few long segments) first, detail layers
+    # (many short segments) last so the design pattern is visible on top
+    all_layers.sort(key=lambda x: x[2])
 
     # Scale to canvas matching the design's aspect ratio
     max_dim = 600
@@ -181,7 +185,7 @@ def _preview_hitex(file_path: Path) -> str:
     img = Image.new("RGB", (canvas_w, canvas_h), "#FFFFFF")
     draw = ImageDraw.Draw(img)
 
-    for colour_hex, segs in all_layers:
+    for colour_hex, segs, _ in all_layers:
         for s in segs:
             x1 = margin + (s.start.x - global_min_x) * scale
             y1 = margin + (s.start.y - global_min_y) * scale
