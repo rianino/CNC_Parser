@@ -521,7 +521,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M80 136l48 48 48-48M128 24v160M224 136v56a16 16 0 01-16 16H48a16 16 0 01-16-16v-56"/>
                             </svg>
-                            Descarregar JSON
+                            Exportar PDF
                         </button>
                         {% if smtp_configured %}
                         <div class="email-inline">
@@ -563,6 +563,7 @@
     const emailInput = SMTP_CONFIGURED ? document.getElementById('emailInput') : null;
     const sendBtn = SMTP_CONFIGURED ? document.getElementById('sendBtn') : null;
     const sendBtnOriginalHTML = sendBtn ? sendBtn.innerHTML : '';
+    const downloadBtnOriginalHTML = downloadBtn.innerHTML;
 
     let currentData = null;
     let yarnCodes = {};
@@ -607,7 +608,7 @@
 
     // ---------- Download ----------
 
-    downloadBtn.addEventListener('click', downloadJSON);
+    downloadBtn.addEventListener('click', downloadPDF);
 
     // ---------- Helpers ----------
 
@@ -961,19 +962,41 @@
 
     // ---------- Download ----------
 
-    function downloadJSON() {
+    async function downloadPDF() {
         const exportData = buildExportData();
         if (!exportData) return;
 
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const base = exportData.source_file.replace(/\.(zop\.zip|brt)$/i, '');
-        a.download = base + '_producao.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Ficheiro descarregado', 'success');
+        downloadBtn.disabled = true;
+        downloadBtn.textContent = 'A gerar...';
+
+        try {
+            const res = await fetch('/download-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ production_data: exportData }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || 'Erro ao gerar PDF', 'error');
+                return;
+            }
+
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const base = exportData.source_file.replace(/\.(zop\.zip|brt)$/i, '');
+            a.download = base + '_producao.pdf';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('PDF descarregado', 'success');
+        } catch (err) {
+            showToast('Erro ao gerar PDF', 'error');
+        } finally {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = downloadBtnOriginalHTML;
+        }
     }
 
     // ---------- Email ----------

@@ -9,6 +9,7 @@ dependencies = [
     "Pillow>=10.0",
     "numpy>=1.26",
     "python-dotenv>=1.0",
+    "fpdf2>=2.8",
 ]
 
 [project.scripts]

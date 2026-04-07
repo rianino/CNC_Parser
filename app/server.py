@@ -244,6 +244,31 @@ def analyse():
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+@app.route("/download-pdf", methods=["POST"])
+def download_pdf():
+    """Generate and return a branded PDF production report."""
+    from app.pdf_report import generate_pdf
+
+    data = request.get_json()
+    if not data or not isinstance(data.get("production_data"), dict):
+        return jsonify({"error": "Dados em falta"}), 400
+
+    pd = data["production_data"]
+    try:
+        pdf_bytes = generate_pdf(pd)
+    except Exception:
+        logger.exception("PDF generation failed")
+        return jsonify({"error": "Erro ao gerar PDF"}), 500
+
+    source = pd.get("source_file", "dados")
+    base = re.sub(r"\.(zop\.zip|brt)$", "", source, flags=re.IGNORECASE)
+    safe_name = secure_filename(f"{base}_producao.pdf")
+
+    response = app.response_class(response=pdf_bytes, status=200, mimetype="application/pdf")
+    response.headers["Content-Disposition"] = f'attachment; filename="{safe_name}"'
+    return response
+
+
 @app.route("/send-email", methods=["POST"])
 def send_email():
     """Send production data by email."""
