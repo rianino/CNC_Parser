@@ -63,7 +63,6 @@ def from_hitex(zip_path: str | Path) -> ProductionData:
     export = read_zip(zip_path)
     colours: list[ColourInfo] = []
     total_tuft_length = 0.0
-    total_area = 0.0
 
     for layer in export.layers:
         parsed = parse_gcode(
@@ -76,29 +75,13 @@ def from_hitex(zip_path: str | Path) -> ProductionData:
         stitch_count = parsed.tuft_moves
         total_tuft_length += tuft_length
 
-        # Estimate area from tufting bounds
-        if parsed.tuft_moves > 0:
-            tuft_segs = [s for s in parsed.segments if s.tuft]
-            xs = []
-            ys = []
-            for s in tuft_segs:
-                xs.extend([s.start.x, s.end.x])
-                ys.extend([s.start.y, s.end.y])
-            layer_width = max(xs) - min(xs) if xs else 0
-            layer_height = max(ys) - min(ys) if ys else 0
-            layer_area = layer_width * layer_height
-        else:
-            layer_area = 0.0
-
-        total_area += layer_area
-
         colours.append(
             ColourInfo(
                 name=layer.name,
                 colour_hex=layer.layer_color,
                 loop_cut_mode=layer.loop_cut_mode,
-                area_mm2=round(layer_area, 2),
-                area_m2=round(layer_area / 1e6, 6),
+                area_mm2=0.0,  # calculated below from proportions
+                area_m2=0.0,
                 percentage=0.0,  # calculated below
                 tuft_length_mm=round(tuft_length, 2),
                 tuft_length_m=round(tuft_length / 1000, 3),
@@ -106,10 +89,18 @@ def from_hitex(zip_path: str | Path) -> ProductionData:
             )
         )
 
-    # Calculate percentages
-    if total_area > 0:
+    # For HITEX, percentage is based on tuft length (proportional to
+    # actual coverage). Bounding box area is meaningless because every
+    # layer spans the full carpet.
+    # Area per colour is derived from the total carpet area × percentage.
+    total_carpet_area_mm2 = export.width_mm * export.height_mm
+    if total_tuft_length > 0:
         for c in colours:
-            c.percentage = round(c.area_mm2 / total_area * 100, 2)
+            c.percentage = round(c.tuft_length_mm / total_tuft_length * 100, 2)
+            c.area_mm2 = round(total_carpet_area_mm2 * c.percentage / 100, 2)
+            c.area_m2 = round(c.area_mm2 / 1e6, 6)
+
+    total_design_area_mm2 = total_carpet_area_mm2
 
     return ProductionData(
         source_file=Path(zip_path).name,
@@ -118,8 +109,8 @@ def from_hitex(zip_path: str | Path) -> ProductionData:
         height_mm=export.height_mm,
         width_m=round(export.width_mm / 1000, 3),
         height_m=round(export.height_mm / 1000, 3),
-        total_design_area_mm2=round(total_area, 2),
-        total_design_area_m2=round(total_area / 1e6, 6),
+        total_design_area_mm2=round(total_design_area_mm2, 2),
+        total_design_area_m2=round(total_design_area_mm2 / 1e6, 6),
         total_tuft_length_mm=round(total_tuft_length, 2),
         total_tuft_length_m=round(total_tuft_length / 1000, 3),
         colours=colours,
