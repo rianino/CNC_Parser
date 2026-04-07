@@ -394,7 +394,7 @@ def _build_email_html(pd: dict) -> str:
     if consumo > 0:
         consumo_line = f"""
         <div>
-            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Consumo fio</p>
+            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Densidade do fio</p>
             <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{float(consumo):.1f} g/m2 (+{float(desperdicio):.0f}%)</p>
         </div>"""
 
