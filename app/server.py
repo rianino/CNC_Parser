@@ -169,15 +169,16 @@ def _preview_hitex(file_path: Path) -> str:
     if not all_layers:
         return ""
 
-    # Scale to canvas
-    canvas_size = 600
+    # Scale to canvas matching the design's aspect ratio
+    max_dim = 600
     margin = 10
-    draw_size = canvas_size - 2 * margin
     extent_x = global_max_x - global_min_x or 1
     extent_y = global_max_y - global_min_y or 1
-    scale = draw_size / max(extent_x, extent_y)
+    scale = (max_dim - 2 * margin) / max(extent_x, extent_y)
+    canvas_w = int(extent_x * scale + 2 * margin)
+    canvas_h = int(extent_y * scale + 2 * margin)
 
-    img = Image.new("RGB", (canvas_size, canvas_size), "#FFFFFF")
+    img = Image.new("RGB", (canvas_w, canvas_h), "#FFFFFF")
     draw = ImageDraw.Draw(img)
 
     for colour_hex, segs in all_layers:
