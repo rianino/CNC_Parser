@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import base64
 import io
 import re
+import tempfile
 from datetime import datetime
+from pathlib import Path
 
 from fpdf import FPDF
 
@@ -14,7 +17,7 @@ _INK = (24, 24, 27)       # #18181B
 _STEEL = (113, 113, 122)  # #71717A
 _MUTED = (161, 161, 170)  # #A1A1AA
 _BORDER = (228, 228, 231)  # #E4E4E7
-_ACCENT = (220, 38, 38)   # #DC2626
+_ACCENT = (24, 24, 27)    # #18181B (ink black)
 _SURFACE = (255, 255, 255)
 _BG = (250, 250, 251)     # #FAFAFA
 
@@ -90,6 +93,39 @@ def generate_pdf(pd: dict) -> bytes:
     pdf.cell(0, 6, f"{source}  |  {stype}", new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(6)
+
+    # --- Design preview image ---
+    preview_b64 = pd.get("preview")
+    if preview_b64 and preview_b64.startswith("data:image/png;base64,"):
+        raw_b64 = preview_b64.split(",", 1)[1]
+        png_bytes = base64.b64decode(raw_b64)
+
+        tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        tmp.write(png_bytes)
+        tmp.close()
+        try:
+            from PIL import Image as PILImage
+            with PILImage.open(tmp.name) as pimg:
+                img_w, img_h = pimg.size
+
+            # Fit within 80mm max height, centred, max 180mm wide
+            max_h = 80
+            max_w = 180
+            aspect = img_w / img_h
+            if aspect >= max_w / max_h:
+                draw_w = max_w
+                draw_h = max_w / aspect
+            else:
+                draw_h = max_h
+                draw_w = max_h * aspect
+
+            x_img = 15 + (180 - draw_w) / 2
+            pdf.set_fill_color(*_BG)
+            pdf.rect(15, pdf.get_y(), 180, draw_h + 12, "F")
+            pdf.image(tmp.name, x=x_img, y=pdf.get_y() + 6, w=draw_w, h=draw_h)
+            pdf.set_y(pdf.get_y() + draw_h + 16)
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
 
     # --- Separator ---
     pdf.set_draw_color(*_BORDER)
