@@ -202,3 +202,20 @@ def read_brt(path: str | Path, load_images: bool = True) -> EfabExport:
     )
 
     return export
+
+
+def generate_preview_png(export: EfabExport, max_size: int = 512) -> bytes:
+    """Generate a PNG preview of the EFAB stitch map.
+
+    Converts the indexed stitch map to RGB and resizes to fit within max_size.
+    Returns raw PNG bytes.
+    """
+    if export.stitch_map is None:
+        raise ValueError("No stitch map available (load_images=False?)")
+
+    rgb = export.stitch_map.convert("RGB")
+    rgb.thumbnail((max_size, max_size), Image.LANCZOS)
+
+    buf = io.BytesIO()
+    rgb.save(buf, format="PNG")
+    return buf.getvalue()

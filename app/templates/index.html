@@ -36,15 +36,13 @@
         }
 
         .container {
-            max-width: 720px;
+            max-width: 780px;
             margin: 0 auto;
             padding: 48px 24px 80px;
         }
 
         /* Header */
-        .header {
-            margin-bottom: 40px;
-        }
+        .header { margin-bottom: 40px; }
         .header h1 {
             font-size: 24px;
             font-weight: 700;
@@ -52,10 +50,7 @@
             color: var(--ink);
             margin-bottom: 4px;
         }
-        .header p {
-            font-size: 14px;
-            color: var(--steel);
-        }
+        .header p { font-size: 14px; color: var(--steel); }
 
         /* Cards */
         .card {
@@ -76,9 +71,7 @@
             letter-spacing: 0.05em;
             color: var(--steel);
         }
-        .card-body {
-            padding: 20px;
-        }
+        .card-body { padding: 20px; }
 
         /* Upload zone */
         .upload-zone {
@@ -91,32 +84,43 @@
         }
         .upload-zone:hover,
         .upload-zone.drag-over {
-            border-color: var(--accent);
-            background: #FEF2F2;
+            border-color: var(--ink);
+            background: #FAFAFA;
         }
         .upload-zone.has-file {
             border-color: var(--success);
             background: var(--success-bg);
             border-style: solid;
         }
+        .upload-zone.processing {
+            border-color: var(--border-strong);
+            border-style: solid;
+            background: var(--surface);
+            pointer-events: none;
+        }
+        .upload-zone.has-error {
+            border-color: var(--error);
+            border-style: dashed;
+            background: var(--error-bg);
+        }
         .upload-zone svg {
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             color: var(--muted);
             margin-bottom: 12px;
         }
         .upload-zone.has-file svg { color: var(--success); }
-        .upload-zone p {
-            font-size: 14px;
-            color: var(--steel);
-        }
+        .upload-zone.has-error svg { color: var(--error); }
+        .upload-zone p { font-size: 14px; color: var(--steel); }
         .upload-zone .file-name {
             font-weight: 600;
             color: var(--ink);
             font-size: 15px;
         }
-        .upload-zone input[type="file"] {
-            display: none;
+        .upload-zone input[type="file"] { display: none; }
+        .upload-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
         }
 
         /* Form elements */
@@ -129,7 +133,9 @@
             letter-spacing: 0.04em;
             margin-bottom: 6px;
         }
-        input[type="email"] {
+        input[type="email"],
+        input[type="number"],
+        input[type="text"] {
             width: 100%;
             padding: 10px 14px;
             border: 1px solid var(--border-strong);
@@ -141,11 +147,12 @@
             outline: none;
             transition: border-color 150ms ease-out;
         }
-        input[type="email"]:focus {
-            border-color: var(--ink);
-        }
-        input[type="email"]::placeholder {
-            color: var(--muted);
+        input:focus { border-color: var(--ink); }
+        input::placeholder { color: var(--muted); }
+        .input-sm {
+            padding: 6px 10px;
+            font-size: 13px;
+            font-family: 'Geist Mono', monospace;
         }
 
         /* Buttons */
@@ -162,39 +169,32 @@
             cursor: pointer;
             transition: background 150ms ease-out, opacity 150ms ease-out;
         }
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .btn-primary {
-            background: var(--ink);
-            color: #fff;
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: #27272A;
-        }
-        .btn-accent {
-            background: var(--accent);
-            color: #fff;
-        }
-        .btn-accent:hover:not(:disabled) {
-            background: var(--accent-hover);
-        }
-        .btn svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-primary { background: var(--ink); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: #27272A; }
+        .btn-accent { background: var(--accent); color: #fff; }
+        .btn-accent:hover:not(:disabled) { background: var(--accent-hover); }
+        .btn svg { width: 16px; height: 16px; }
 
         /* Results */
         .results { display: none; }
         .results.visible { display: block; }
 
+        /* Preview */
+        .preview-wrap {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: #FAFAFA;
+        }
+        .preview-wrap img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* Metrics */
         .metric-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -227,11 +227,49 @@
             color: var(--steel);
         }
 
-        /* Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* Colour distribution bar */
+        .colour-bar {
+            display: flex;
+            height: 8px;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
         }
+        .colour-bar span {
+            display: block;
+            height: 100%;
+            transition: width 200ms ease-out;
+        }
+
+        /* Peso input row */
+        .peso-row {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #FAFAFA;
+        }
+        .peso-row label { margin-bottom: 0; white-space: nowrap; }
+        .peso-row input {
+            width: 120px;
+            text-align: right;
+        }
+        .peso-row .peso-unit {
+            font-size: 13px;
+            color: var(--steel);
+            font-weight: 500;
+        }
+        .peso-row .total-kg {
+            margin-left: auto;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; }
         thead th {
             padding: 10px 14px;
             text-align: left;
@@ -242,10 +280,11 @@
             color: var(--muted);
             background: #FAFAFA;
             border-bottom: 2px solid var(--border);
+            white-space: nowrap;
         }
         thead th.num { text-align: right; }
         tbody td {
-            padding: 12px 14px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
             font-size: 14px;
             font-variant-numeric: tabular-nums;
@@ -255,15 +294,47 @@
             font-family: 'Geist Mono', monospace;
             font-size: 13px;
         }
+        tbody td.kg {
+            text-align: right;
+            font-family: 'Geist Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        tbody tr:nth-child(even) { background: #FAFAFA; }
+        tbody tr:hover { background: #F4F4F5; transition: background 150ms ease-out; }
+        tfoot td {
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            border-top: 2px solid var(--border);
+            background: #FAFAFA;
+        }
         .colour-swatch {
             display: inline-block;
-            width: 14px;
-            height: 14px;
+            width: 14px; height: 14px;
             border-radius: 3px;
             border: 1px solid var(--border-strong);
             vertical-align: middle;
             margin-right: 8px;
         }
+        .modo-col { }
+        .yarn-input { width: 110px; }
+
+        /* Actions */
+        .actions-grid {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .email-inline {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            min-width: 260px;
+        }
+        .email-inline input { flex: 1; }
 
         /* Toast */
         .toast {
@@ -278,33 +349,20 @@
             transform: translateY(120%);
             transition: transform 200ms ease-out;
             z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
         }
         .toast.visible { transform: translateY(0); }
         .toast.success { background: var(--success); color: #fff; }
         .toast.error { background: var(--error); color: #fff; }
-
-        /* Loading */
-        .loading-bar {
-            height: 3px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-            display: none;
+        .toast-close {
+            background: none; border: none; color: inherit;
+            font-size: 18px; cursor: pointer; padding: 0 4px;
+            opacity: 0.7; line-height: 1;
         }
-        .loading-bar.active { display: block; }
-        .loading-bar::after {
-            content: '';
-            display: block;
-            height: 100%;
-            width: 40%;
-            background: var(--ink);
-            border-radius: 2px;
-            animation: loading 1s ease-in-out infinite;
-        }
-        @keyframes loading {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(350%); }
-        }
+        .toast-close:hover { opacity: 1; }
 
         /* Skeleton */
         .skeleton {
@@ -333,6 +391,23 @@
             margin-left: 8px;
             vertical-align: middle;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .metric-grid { grid-template-columns: repeat(2, 1fr); }
+            .email-inline { min-width: 0; width: 100%; }
+            .preview-wrap img { max-height: 300px; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 24px 16px 60px; }
+            .header h1 { font-size: 20px; }
+            .metric-grid { grid-template-columns: 1fr; }
+            .upload-zone { padding: 28px 16px; }
+            .actions-grid { flex-direction: column; align-items: stretch; }
+            .email-inline { flex-direction: column; }
+            .peso-row { flex-wrap: wrap; }
+            .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+        }
     </style>
 </head>
 <body>
@@ -340,7 +415,7 @@
 
         <div class="header">
             <h1>Analise de Vetorizacao</h1>
-            <p>Carregar ficheiro HITEX (.zop.zip) ou EFAB (.brt) para calcular dados de producao</p>
+            <p>Calcular necessidades de fio a partir de ficheiros de vetorizacao</p>
         </div>
 
         <!-- Upload -->
@@ -351,9 +426,9 @@
                         <path d="M80 136l48-48 48 48M128 88v120M224 136v56a16 16 0 01-16 16H48a16 16 0 01-16-16v-56"/>
                     </svg>
                     <p id="uploadText">Arrastar ficheiro ou clicar para seleccionar</p>
+                    <p class="upload-hint" id="uploadHint">.zop.zip (HITEX) ou .brt (EFAB)</p>
                     <input type="file" id="fileInput" accept=".zip,.brt">
                 </div>
-                <div class="loading-bar" id="loadingBar"></div>
             </div>
         </div>
 
@@ -367,6 +442,13 @@
                         <span class="source-badge" id="resultType"></span>
                     </h2>
                 </div>
+
+                <!-- Preview image -->
+                <div class="preview-wrap" id="previewWrap" style="display:none;">
+                    <img id="previewImg" alt="Preview do design">
+                </div>
+
+                <!-- Metrics -->
                 <div class="metric-grid">
                     <div class="metric">
                         <div class="metric-label">Dimensoes</div>
@@ -385,36 +467,63 @@
                         <div class="metric-value" id="metricColours"></div>
                     </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cor</th>
-                            <th class="num">Area</th>
-                            <th class="num">%</th>
-                            <th class="num">Comprimento</th>
-                            <th class="num">Pontos</th>
-                            <th>Modo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="colourTable"></tbody>
-                </table>
+
+                <!-- Colour distribution bar -->
+                <div class="colour-bar" id="colourBar"></div>
+
+                <!-- Peso por m2 input -->
+                <div class="peso-row">
+                    <label for="pesoInput">Peso por m2</label>
+                    <input type="number" id="pesoInput" class="input-sm" placeholder="0" min="0" step="1" style="width:100px;">
+                    <span class="peso-unit">g/m2</span>
+                    <span class="total-kg" id="totalKg"></span>
+                </div>
+
+                <!-- Colour table -->
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cor</th>
+                                <th>Codigo Fio</th>
+                                <th class="num">Area</th>
+                                <th class="num">%</th>
+                                <th class="num">Peso (kg)</th>
+                                <th class="num modo-col">Comprimento</th>
+                                <th class="num modo-col">Pontos</th>
+                                <th class="modo-col" title="Loop = lacos, Cut = cortado. Disponivel apenas para HITEX.">Modo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="colourTable"></tbody>
+                        <tfoot id="colourFoot"></tfoot>
+                    </table>
+                </div>
             </div>
 
-            <!-- Email -->
+            <!-- Actions -->
             <div class="card">
-                <div class="card-header">
-                    <h2>Enviar por Email</h2>
-                </div>
+                <div class="card-header"><h2>Exportar</h2></div>
                 <div class="card-body">
-                    <label for="emailInput">Destinatario</label>
-                    <input type="email" id="emailInput" placeholder="nome@empresa.pt">
-                    <div class="actions">
-                        <button class="btn btn-accent" id="sendBtn" disabled>
+                    <div class="actions-grid">
+                        <button class="btn btn-primary" id="downloadBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M224 48L136 136M224 48l-56 176-24-88-88-24z"/>
+                                <path d="M80 136l48 48 48-48M128 24v160M224 136v56a16 16 0 01-16 16H48a16 16 0 01-16-16v-56"/>
                             </svg>
-                            Enviar
+                            Descarregar JSON
                         </button>
+                        {% if smtp_configured %}
+                        <div class="email-inline">
+                            <input type="email" id="emailInput" placeholder="nome@empresa.pt">
+                            <button class="btn btn-accent" id="sendBtn" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M224 48L136 136M224 48l-56 176-24-88-88-24z"/>
+                                </svg>
+                                Enviar
+                            </button>
+                        </div>
+                        {% else %}
+                        <span style="font-size:13px; color:var(--muted);">Email nao configurado</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -426,19 +535,27 @@
     <div class="toast" id="toast"></div>
 
     <script>
+    const SMTP_CONFIGURED = {{ smtp_configured | tojson }};
+
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
     const uploadText = document.getElementById('uploadText');
-    const loadingBar = document.getElementById('loadingBar');
+    const uploadHint = document.getElementById('uploadHint');
     const results = document.getElementById('results');
-    const emailInput = document.getElementById('emailInput');
-    const sendBtn = document.getElementById('sendBtn');
     const toast = document.getElementById('toast');
+    const pesoInput = document.getElementById('pesoInput');
+    const totalKgEl = document.getElementById('totalKg');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const emailInput = SMTP_CONFIGURED ? document.getElementById('emailInput') : null;
+    const sendBtn = SMTP_CONFIGURED ? document.getElementById('sendBtn') : null;
+    const sendBtnOriginalHTML = sendBtn ? sendBtn.innerHTML : '';
 
     let currentData = null;
-    const sendBtnOriginalHTML = sendBtn.innerHTML;
+    let yarnCodes = {};
 
-    // Upload zone interactions
+    // ---------- Upload zone ----------
+
     uploadZone.addEventListener('click', () => fileInput.click());
 
     uploadZone.addEventListener('dragover', (e) => {
@@ -461,13 +578,24 @@
         if (fileInput.files.length) handleFile(fileInput.files[0]);
     });
 
-    // Email validation
-    emailInput.addEventListener('input', () => {
-        sendBtn.disabled = !emailInput.value.includes('@') || !currentData;
-    });
+    // ---------- Email ----------
 
-    // Send email
-    sendBtn.addEventListener('click', sendEmail);
+    if (emailInput) {
+        emailInput.addEventListener('input', () => {
+            sendBtn.disabled = !emailInput.value.includes('@') || !currentData;
+        });
+        sendBtn.addEventListener('click', sendEmail);
+    }
+
+    // ---------- Peso input ----------
+
+    pesoInput.addEventListener('input', recalculate);
+
+    // ---------- Download ----------
+
+    downloadBtn.addEventListener('click', downloadJSON);
+
+    // ---------- Helpers ----------
 
     function setUploadStatus(fileName, statusText) {
         uploadText.textContent = '';
@@ -479,44 +607,6 @@
             uploadText.appendChild(document.createElement('br'));
         }
         uploadText.appendChild(document.createTextNode(statusText));
-    }
-
-    async function handleFile(file) {
-        uploadZone.classList.remove('has-file');
-        uploadZone.classList.add('drag-over');
-        setUploadStatus(file.name, 'A processar...');
-        loadingBar.classList.add('active');
-        results.classList.remove('visible');
-        currentData = null;
-
-        const form = new FormData();
-        form.append('file', file);
-
-        try {
-            const res = await fetch('/analyse', { method: 'POST', body: form });
-            const data = await res.json();
-
-            if (data.error) {
-                showToast(data.error, 'error');
-                uploadZone.classList.remove('drag-over');
-                uploadText.textContent = 'Arrastar ficheiro ou clicar para seleccionar';
-                return;
-            }
-
-            currentData = data;
-            renderResults(data);
-
-            uploadZone.classList.remove('drag-over');
-            uploadZone.classList.add('has-file');
-            setUploadStatus(file.name, 'Processado com sucesso');
-
-        } catch (err) {
-            showToast('Erro de ligacao ao servidor', 'error');
-            uploadZone.classList.remove('drag-over');
-            uploadText.textContent = 'Arrastar ficheiro ou clicar para seleccionar';
-        } finally {
-            loadingBar.classList.remove('active');
-        }
     }
 
     function safeColourHex(hex) {
@@ -533,6 +623,100 @@
         el.appendChild(span);
     }
 
+    function showToast(msg, type) {
+        clearTimeout(toast._timer);
+        toast.textContent = '';
+        const text = document.createElement('span');
+        text.textContent = msg;
+        text.style.flex = '1';
+        toast.appendChild(text);
+        const close = document.createElement('button');
+        close.className = 'toast-close';
+        close.textContent = '\u00D7';
+        close.onclick = () => toast.classList.remove('visible');
+        toast.appendChild(close);
+        toast.className = 'toast ' + type + ' visible';
+        toast._timer = setTimeout(() => toast.classList.remove('visible'), type === 'error' ? 6000 : 4000);
+    }
+
+    // ---------- File handling ----------
+
+    async function handleFile(file) {
+        // Reset states
+        uploadZone.className = 'upload-zone processing';
+        uploadHint.style.display = 'none';
+        setUploadStatus(file.name, 'A processar...');
+        currentData = null;
+        yarnCodes = {};
+        pesoInput.value = '';
+
+        // Show skeleton
+        showSkeleton();
+
+        const form = new FormData();
+        form.append('file', file);
+
+        try {
+            const res = await fetch('/analyse', { method: 'POST', body: form });
+            const data = await res.json();
+
+            if (data.error) {
+                uploadZone.className = 'upload-zone has-error';
+                setUploadStatus(file.name, data.error);
+                showToast(data.error, 'error');
+                results.classList.remove('visible');
+                return;
+            }
+
+            currentData = data;
+            renderResults(data);
+
+            uploadZone.className = 'upload-zone has-file';
+            setUploadStatus(file.name, 'Processado com sucesso');
+
+        } catch (err) {
+            uploadZone.className = 'upload-zone has-error';
+            setUploadStatus(file.name, 'Erro de ligacao ao servidor');
+            showToast('Erro de ligacao ao servidor', 'error');
+            results.classList.remove('visible');
+        }
+    }
+
+    function showSkeleton() {
+        results.classList.add('visible');
+        document.getElementById('previewWrap').style.display = 'none';
+        ['metricDims','metricArea','metricLength','metricColours'].forEach(id => {
+            const el = document.getElementById(id);
+            el.textContent = '';
+            const sk = document.createElement('div');
+            sk.className = 'skeleton';
+            sk.style.width = '80px';
+            sk.style.height = '22px';
+            el.appendChild(sk);
+        });
+        document.getElementById('colourBar').textContent = '';
+        const tbody = document.getElementById('colourTable');
+        tbody.textContent = '';
+        for (let i = 0; i < 3; i++) {
+            const tr = document.createElement('tr');
+            for (let j = 0; j < 8; j++) {
+                const td = document.createElement('td');
+                const sk = document.createElement('div');
+                sk.className = 'skeleton';
+                sk.style.width = j === 0 ? '100px' : '60px';
+                td.appendChild(sk);
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+        document.getElementById('colourFoot').textContent = '';
+        totalKgEl.textContent = '';
+        document.getElementById('resultFileName').textContent = '';
+        document.getElementById('resultType').textContent = '';
+    }
+
+    // ---------- Render results ----------
+
     function renderResults(data) {
         document.getElementById('resultFileName').textContent = data.source_file;
         document.getElementById('resultType').textContent = data.source_type;
@@ -545,13 +729,40 @@
         setMetric('metricLength', t.tuft_length_m.toFixed(1), 'm');
         document.getElementById('metricColours').textContent = t.colour_count;
 
+        // Preview image
+        const previewWrap = document.getElementById('previewWrap');
+        if (data.preview) {
+            document.getElementById('previewImg').src = data.preview;
+            previewWrap.style.display = '';
+        } else {
+            previewWrap.style.display = 'none';
+        }
+
+        // Colour distribution bar
+        const bar = document.getElementById('colourBar');
+        bar.textContent = '';
+        data.colours.forEach(c => {
+            const seg = document.createElement('span');
+            seg.style.width = c.percentage + '%';
+            seg.style.background = safeColourHex(c.colour_hex);
+            seg.title = (c.name || '') + ' \u2014 ' + c.percentage.toFixed(1) + '%';
+            bar.appendChild(seg);
+        });
+
+        // Hide Modo/Comprimento/Pontos columns for EFAB (always empty)
+        const hasModo = data.colours.some(c => c.loop_cut_mode);
+        document.querySelectorAll('.modo-col').forEach(el => {
+            el.style.display = hasModo ? '' : 'none';
+        });
+
+        // Colour table
         const tbody = document.getElementById('colourTable');
         tbody.textContent = '';
 
-        data.colours.forEach(c => {
+        data.colours.forEach((c, i) => {
             const tr = document.createElement('tr');
 
-            // Colour name cell with swatch
+            // Colour name
             const tdName = document.createElement('td');
             const swatch = document.createElement('span');
             swatch.className = 'colour-swatch';
@@ -560,66 +771,228 @@
             tdName.appendChild(document.createTextNode(' ' + (c.name || '')));
             tr.appendChild(tdName);
 
-            // Numeric cells
-            const nums = [
-                c.area_m2.toFixed(4) + ' m2',
-                c.percentage.toFixed(1) + '%',
-                c.tuft_length_m.toFixed(1) + ' m',
-                c.stitch_count.toLocaleString('pt-PT'),
-            ];
-            nums.forEach(v => {
-                const td = document.createElement('td');
-                td.className = 'num';
-                td.textContent = v;
-                tr.appendChild(td);
-            });
+            // Yarn code input
+            const tdYarn = document.createElement('td');
+            const yarnInput = document.createElement('input');
+            yarnInput.type = 'text';
+            yarnInput.className = 'input-sm yarn-input';
+            yarnInput.placeholder = 'F01.0000';
+            yarnInput.value = yarnCodes[i] || '';
+            yarnInput.addEventListener('input', () => { yarnCodes[i] = yarnInput.value; });
+            tdYarn.appendChild(yarnInput);
+            tr.appendChild(tdYarn);
 
-            // Mode cell
+            // Area
+            const tdArea = document.createElement('td');
+            tdArea.className = 'num';
+            tdArea.textContent = c.area_m2.toFixed(4) + ' m2';
+            tr.appendChild(tdArea);
+
+            // Percentage
+            const tdPct = document.createElement('td');
+            tdPct.className = 'num';
+            tdPct.textContent = c.percentage.toFixed(1) + '%';
+            tr.appendChild(tdPct);
+
+            // Peso (kg) — calculated
+            const tdKg = document.createElement('td');
+            tdKg.className = 'kg';
+            tdKg.dataset.colourIndex = i;
+            tdKg.textContent = '\u2014';
+            tr.appendChild(tdKg);
+
+            // Comprimento (modo-col)
+            const tdLen = document.createElement('td');
+            tdLen.className = 'num modo-col';
+            tdLen.textContent = c.tuft_length_m.toFixed(1) + ' m';
+            tdLen.style.display = hasModo ? '' : 'none';
+            tr.appendChild(tdLen);
+
+            // Pontos (modo-col)
+            const tdPts = document.createElement('td');
+            tdPts.className = 'num modo-col';
+            tdPts.textContent = c.stitch_count.toLocaleString('pt-PT');
+            tdPts.style.display = hasModo ? '' : 'none';
+            tr.appendChild(tdPts);
+
+            // Modo (modo-col)
             const tdMode = document.createElement('td');
+            tdMode.className = 'modo-col';
             tdMode.textContent = c.loop_cut_mode || '\u2014';
+            tdMode.style.display = hasModo ? '' : 'none';
             tr.appendChild(tdMode);
 
             tbody.appendChild(tr);
         });
 
+        // Footer
+        renderFooter(hasModo);
+
         results.classList.add('visible');
-        sendBtn.disabled = !emailInput.value.includes('@');
+        if (sendBtn) sendBtn.disabled = !emailInput.value.includes('@');
+
+        recalculate();
     }
 
+    function renderFooter(hasModo) {
+        const tfoot = document.getElementById('colourFoot');
+        tfoot.textContent = '';
+        const tr = document.createElement('tr');
+
+        const tdLabel = document.createElement('td');
+        tdLabel.colSpan = 2;
+        tdLabel.textContent = 'Total';
+        tr.appendChild(tdLabel);
+
+        const tdArea = document.createElement('td');
+        tdArea.className = 'num';
+        if (currentData) tdArea.textContent = currentData.totals.design_area_m2.toFixed(4) + ' m2';
+        tr.appendChild(tdArea);
+
+        const tdPct = document.createElement('td');
+        tdPct.className = 'num';
+        tdPct.textContent = '100%';
+        tr.appendChild(tdPct);
+
+        const tdKg = document.createElement('td');
+        tdKg.className = 'kg';
+        tdKg.id = 'footerKg';
+        tdKg.textContent = '\u2014';
+        tr.appendChild(tdKg);
+
+        if (hasModo) {
+            for (let i = 0; i < 3; i++) {
+                const td = document.createElement('td');
+                td.className = 'modo-col';
+                tr.appendChild(td);
+            }
+        }
+
+        tfoot.appendChild(tr);
+    }
+
+    // ---------- Yarn weight calculation ----------
+
+    function recalculate() {
+        if (!currentData) return;
+
+        const peso = parseFloat(pesoInput.value) || 0;
+        const totalArea = currentData.totals.design_area_m2;
+        let totalKg = 0;
+
+        currentData.colours.forEach((c, i) => {
+            const kg = peso > 0 ? totalArea * (c.percentage / 100) * (peso / 1000) : 0;
+            totalKg += kg;
+
+            const cell = document.querySelector(`td.kg[data-colour-index="${i}"]`);
+            if (cell) cell.textContent = peso > 0 ? kg.toFixed(3) : '\u2014';
+        });
+
+        const footerKg = document.getElementById('footerKg');
+        if (footerKg) footerKg.textContent = peso > 0 ? totalKg.toFixed(3) + ' kg' : '\u2014';
+
+        totalKgEl.textContent = peso > 0 ? 'Total: ' + totalKg.toFixed(3) + ' kg' : '';
+    }
+
+    // ---------- Export data builder ----------
+
+    function buildExportData() {
+        if (!currentData) return null;
+
+        const peso = parseFloat(pesoInput.value) || 0;
+        const totalArea = currentData.totals.design_area_m2;
+        let totalKg = 0;
+
+        const colours = currentData.colours.map((c, i) => {
+            const kg = peso > 0 ? totalArea * (c.percentage / 100) * (peso / 1000) : 0;
+            totalKg += kg;
+            return {
+                name: c.name,
+                colour_hex: c.colour_hex,
+                yarn_code: yarnCodes[i] || '',
+                area_m2: c.area_m2,
+                percentage: c.percentage,
+                yarn_kg: Math.round(kg * 1000) / 1000,
+                tuft_length_m: c.tuft_length_m,
+                stitch_count: c.stitch_count,
+                loop_cut_mode: c.loop_cut_mode,
+            };
+        });
+
+        return {
+            source_file: currentData.source_file,
+            source_type: currentData.source_type,
+            dimensions: currentData.dimensions,
+            peso_por_m2_g: peso,
+            totals: {
+                design_area_m2: currentData.totals.design_area_m2,
+                tuft_length_m: currentData.totals.tuft_length_m,
+                total_yarn_kg: Math.round(totalKg * 1000) / 1000,
+                colour_count: currentData.totals.colour_count,
+            },
+            colours: colours,
+        };
+    }
+
+    // ---------- Download ----------
+
+    function downloadJSON() {
+        const exportData = buildExportData();
+        if (!exportData) return;
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const base = exportData.source_file.replace(/\.(zop\.zip|brt)$/i, '');
+        a.download = base + '_producao.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Ficheiro descarregado', 'success');
+    }
+
+    // ---------- Email ----------
+
     async function sendEmail() {
-        if (!currentData || !emailInput.value) return;
+        if (!currentData || !emailInput || !emailInput.value) return;
+
+        const exportData = buildExportData();
+        if (!exportData) return;
 
         sendBtn.disabled = true;
         sendBtn.textContent = 'A enviar...';
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
             const res = await fetch('/send-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: emailInput.value,
-                    production_data: currentData
-                })
+                body: JSON.stringify({ email: emailInput.value, production_data: exportData }),
+                signal: controller.signal,
             });
+            clearTimeout(timeoutId);
             const data = await res.json();
 
             if (data.error) {
                 showToast(data.error, 'error');
             } else {
                 showToast(data.message, 'success');
+                emailInput.value = '';
+                sendBtn.disabled = true;
             }
         } catch (err) {
-            showToast('Erro de ligacao ao servidor', 'error');
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                showToast('Timeout \u2014 servidor nao respondeu. Tentar novamente.', 'error');
+            } else {
+                showToast('Erro de ligacao ao servidor', 'error');
+            }
         } finally {
             sendBtn.disabled = false;
             sendBtn.innerHTML = sendBtnOriginalHTML;
         }
-    }
-
-    function showToast(msg, type) {
-        toast.textContent = msg;
-        toast.className = `toast ${type} visible`;
-        setTimeout(() => toast.classList.remove('visible'), 4000);
     }
     </script>
 </body>
