@@ -317,10 +317,12 @@ def _build_email_html(pd: dict) -> str:
     dims = pd.get("dimensions", {})
     totals = pd.get("totals", {})
     colours = pd.get("colours", [])
-    peso_por_m2 = pd.get("peso_por_m2_g", 0)
+    consumo = pd.get("consumo_fio_g_m2", 0)
+    desperdicio = pd.get("desperdicio_pct", 0)
+    consumo_total = pd.get("consumo_com_desperdicio_g_m2", 0)
 
     # Check if yarn data is present
-    has_yarn = peso_por_m2 > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
+    has_yarn = consumo > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
     has_modo = any(c.get("loop_cut_mode") for c in colours)
 
     # Build header columns
@@ -388,12 +390,12 @@ def _build_email_html(pd: dict) -> str:
     source_file = _esc(pd.get("source_file", ""))
     source_type = _esc(pd.get("source_type", ""))
 
-    peso_line = ""
-    if peso_por_m2 > 0:
-        peso_line = f"""
+    consumo_line = ""
+    if consumo > 0:
+        consumo_line = f"""
         <div>
-            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Peso/m2</p>
-            <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{int(peso_por_m2)} g</p>
+            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Consumo fio</p>
+            <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{float(consumo):.1f} g/m2 (+{float(desperdicio):.0f}%)</p>
         </div>"""
 
     total_kg_line = ""
@@ -424,7 +426,7 @@ def _build_email_html(pd: dict) -> str:
             <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Area Total</p>
             <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{float(totals.get('design_area_m2', 0)):.4f} m2</p>
         </div>
-        {peso_line}
+        {consumo_line}
         {total_kg_line}
         <div>
             <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Cores</p>

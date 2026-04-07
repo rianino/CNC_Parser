@@ -5,6 +5,7 @@ __pycache__/
 app/.env
 app/uploads/
 
-# Sample vectorization files (large binaries)
+# Sample files (large binaries)
 *.brt
 *.zop.zip
+*.xlsx
