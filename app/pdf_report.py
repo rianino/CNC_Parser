@@ -75,9 +75,10 @@ def generate_pdf(pd: dict) -> bytes:
     dims = pd.get("dimensions", {})
     totals = pd.get("totals", {})
     colours = pd.get("colours", [])
-    consumo = pd.get("consumo_fio_g_m2", 0)
-    desperdicio = pd.get("desperdicio_pct", 0)
-    has_yarn = consumo > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
+    yarn_params = pd.get("yarn_params", {})
+    consumo_g_m2 = yarn_params.get("consumo_g_m2", 0)
+    desperdicio = yarn_params.get("desperdicio_pct", 0)
+    has_yarn = consumo_g_m2 > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
     has_modo = any(c.get("loop_cut_mode") for c in colours)
 
     # --- Title ---
@@ -139,7 +140,7 @@ def generate_pdf(pd: dict) -> bytes:
         ("Cores", str(totals.get("colour_count", 0))),
     ]
     if has_yarn:
-        metrics.append(("Densidade Fio", f"{float(consumo):.0f} g/m2 (+{float(desperdicio):.0f}%)"))
+        metrics.append(("Consumo fio", f"{float(consumo_g_m2):.0f} g/m2 (+{float(desperdicio):.0f}%)"))
         metrics.append(("Peso Total", f"{totals.get('total_yarn_kg', 0):.3f} kg"))
 
     col_w = 180 / len(metrics)

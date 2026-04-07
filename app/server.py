@@ -347,12 +347,12 @@ def _build_email_html(pd: dict) -> str:
     dims = pd.get("dimensions", {})
     totals = pd.get("totals", {})
     colours = pd.get("colours", [])
-    consumo = pd.get("consumo_fio_g_m2", 0)
-    desperdicio = pd.get("desperdicio_pct", 0)
-    consumo_total = pd.get("consumo_com_desperdicio_g_m2", 0)
+    yarn_params = pd.get("yarn_params", {})
+    consumo_g_m2 = yarn_params.get("consumo_g_m2", 0)
+    desperdicio = yarn_params.get("desperdicio_pct", 0)
 
     # Check if yarn data is present
-    has_yarn = consumo > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
+    has_yarn = consumo_g_m2 > 0 and any(c.get("yarn_kg", 0) > 0 for c in colours)
     has_modo = any(c.get("loop_cut_mode") for c in colours)
 
     # Build header columns
@@ -421,11 +421,11 @@ def _build_email_html(pd: dict) -> str:
     source_type = _esc(pd.get("source_type", ""))
 
     consumo_line = ""
-    if consumo > 0:
+    if consumo_g_m2 > 0:
         consumo_line = f"""
         <div>
-            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Densidade do fio</p>
-            <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{float(consumo):.1f} g/m2 (+{float(desperdicio):.0f}%)</p>
+            <p style="margin:0 0 2px; font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">Consumo fio</p>
+            <p style="margin:0; font-size:16px; font-weight:600; color:#18181b;">{float(consumo_g_m2):.0f} g/m2 (+{float(desperdicio):.0f}%)</p>
         </div>"""
 
     total_kg_line = ""

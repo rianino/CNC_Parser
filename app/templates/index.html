@@ -240,36 +240,61 @@
             transition: width 200ms ease-out;
         }
 
-        /* Yarn params row */
-        .yarn-params {
-            padding: 16px 20px;
+        /* Yarn calculator */
+        .yarn-calc {
+            border-bottom: 1px solid var(--border);
+        }
+        .yarn-calc-header {
+            padding: 12px 20px;
+            background: #FAFAFA;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 16px;
-            background: #FAFAFA;
-            flex-wrap: wrap;
+            justify-content: space-between;
         }
-        .yarn-param {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .yarn-param label { margin-bottom: 0; white-space: nowrap; }
-        .yarn-param input { width: 90px; text-align: right; }
-        .yarn-param .unit {
-            font-size: 13px;
+        .yarn-calc-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             color: var(--steel);
-            font-weight: 500;
-            white-space: nowrap;
         }
-        .total-kg {
-            margin-left: auto;
-            font-size: 16px;
+        .yarn-calc-result {
+            font-size: 15px;
             font-weight: 700;
             color: var(--ink);
             font-variant-numeric: tabular-nums;
-            white-space: nowrap;
+        }
+        .yarn-calc-grid {
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .yarn-field label { margin-bottom: 4px; font-size: 11px; }
+        .yarn-field input { text-align: right; }
+        .yarn-field .unit {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .yarn-field .from-file {
+            font-size: 11px;
+            color: var(--success);
+            margin-top: 2px;
+        }
+        .yarn-calc-summary {
+            padding: 12px 20px;
+            background: #FAFAFA;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--steel);
+        }
+        .yarn-calc-summary strong {
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
         }
 
         /* Table */
@@ -476,19 +501,52 @@
                 <!-- Colour distribution bar -->
                 <div class="colour-bar" id="colourBar"></div>
 
-                <!-- Yarn consumption parameters -->
-                <div class="yarn-params">
-                    <div class="yarn-param">
-                        <label for="consumoInput">Densidade do fio</label>
-                        <input type="number" id="consumoInput" class="input-sm" placeholder="220" min="0" step="0.1" value="220">
-                        <span class="unit">g/m2</span>
+                <!-- Yarn calculator -->
+                <div class="yarn-calc">
+                    <div class="yarn-calc-header">
+                        <h3>Calculo de Fio</h3>
+                        <span class="yarn-calc-result" id="totalKg"></span>
                     </div>
-                    <div class="yarn-param">
-                        <label for="desperdicioInput">Desperdicio</label>
-                        <input type="number" id="desperdicioInput" class="input-sm" placeholder="5" min="0" step="1" value="5">
-                        <span class="unit">%</span>
+                    <div class="yarn-calc-grid">
+                        <div class="yarn-field">
+                            <label for="yarnTex">Titulo fio</label>
+                            <input type="number" id="yarnTex" class="input-sm" placeholder="0" min="0" step="0.01">
+                            <div class="unit">Tex (g/km)</div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnCabos">Cabos</label>
+                            <input type="number" id="yarnCabos" class="input-sm" placeholder="0" min="0" step="1">
+                            <div class="unit">plies</div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnFios">Fios</label>
+                            <input type="number" id="yarnFios" class="input-sm" placeholder="0" min="0" step="1">
+                            <div class="unit">por agulha</div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnAltura">Altura pelo</label>
+                            <input type="number" id="yarnAltura" class="input-sm" placeholder="0" min="0" step="0.5">
+                            <div class="unit">mm</div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnDensidade">Densidade</label>
+                            <input type="number" id="yarnDensidade" class="input-sm" placeholder="0" min="0" step="1">
+                            <div class="unit">por 10cm</div>
+                            <div class="from-file" id="densidadeFromFile"></div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnEscala">Escala</label>
+                            <input type="number" id="yarnEscala" class="input-sm" placeholder="0" min="0" step="0.1">
+                            <div class="unit">mm</div>
+                            <div class="from-file" id="escalaFromFile"></div>
+                        </div>
+                        <div class="yarn-field">
+                            <label for="yarnDesperdicio">Desperdicio</label>
+                            <input type="number" id="yarnDesperdicio" class="input-sm" placeholder="5" min="0" step="1" value="5">
+                            <div class="unit">%</div>
+                        </div>
                     </div>
-                    <span class="total-kg" id="totalKg"></span>
+                    <div class="yarn-calc-summary" id="yarnSummary"></div>
                 </div>
 
                 <!-- Colour table -->
@@ -555,9 +613,17 @@
     const uploadHint = document.getElementById('uploadHint');
     const results = document.getElementById('results');
     const toast = document.getElementById('toast');
-    const consumoInput = document.getElementById('consumoInput');
-    const desperdicioInput = document.getElementById('desperdicioInput');
+    const yarnInputs = {
+        tex: document.getElementById('yarnTex'),
+        cabos: document.getElementById('yarnCabos'),
+        fios: document.getElementById('yarnFios'),
+        altura: document.getElementById('yarnAltura'),
+        densidade: document.getElementById('yarnDensidade'),
+        escala: document.getElementById('yarnEscala'),
+        desperdicio: document.getElementById('yarnDesperdicio'),
+    };
     const totalKgEl = document.getElementById('totalKg');
+    const yarnSummary = document.getElementById('yarnSummary');
     const downloadBtn = document.getElementById('downloadBtn');
 
     const emailInput = SMTP_CONFIGURED ? document.getElementById('emailInput') : null;
@@ -603,8 +669,9 @@
 
     // ---------- Yarn params ----------
 
-    consumoInput.addEventListener('input', recalculate);
-    desperdicioInput.addEventListener('input', recalculate);
+    Object.values(yarnInputs).forEach(input => {
+        input.addEventListener('input', recalculate);
+    });
 
     // ---------- Download ----------
 
@@ -663,8 +730,11 @@
         setUploadStatus(file.name, 'A processar...');
         currentData = null;
         yarnCodes = {};
-        consumoInput.value = '220';
-        desperdicioInput.value = '5';
+        // Reset yarn inputs except desperdicio (keeps its default)
+        ['tex', 'cabos', 'fios', 'altura'].forEach(k => yarnInputs[k].value = '');
+        yarnInputs.desperdicio.value = '5';
+        document.getElementById('densidadeFromFile').textContent = '';
+        document.getElementById('escalaFromFile').textContent = '';
 
         // Show skeleton
         showSkeleton();
@@ -844,6 +914,17 @@
         // Footer
         renderFooter(hasModo);
 
+        // Auto-fill yarn params from file
+        const fp = data.file_params || {};
+        if (fp.escala_mm > 0) {
+            yarnInputs.escala.value = fp.escala_mm;
+            document.getElementById('escalaFromFile').textContent = 'do ficheiro';
+        }
+        if (fp.densidade_10cm > 0) {
+            yarnInputs.densidade.value = fp.densidade_10cm;
+            document.getElementById('densidadeFromFile').textContent = 'do ficheiro';
+        }
+
         results.classList.add('visible');
         if (sendBtn) sendBtn.disabled = !emailInput.value.includes('@');
 
@@ -889,20 +970,64 @@
 
     // ---------- Yarn weight calculation ----------
 
+    function calcConsumo() {
+        // Excel formula:
+        // M = Tex × Cabos × Fios  (total yarn linear mass, Tex = g/km)
+        // yarn_per_stitch_m = (altura_pelo × 2 + 3) / 1000
+        // stitches_per_m_x = 1000 / escala
+        // stitches_per_m_y = densidade × 10
+        // consumo_kg_m2 = stitches_x × stitches_y × yarn_per_stitch × M / 10_000_000
+        const tex = parseFloat(yarnInputs.tex.value) || 0;
+        const cabos = parseFloat(yarnInputs.cabos.value) || 0;
+        const fios = parseFloat(yarnInputs.fios.value) || 0;
+        const altura = parseFloat(yarnInputs.altura.value) || 0;
+        const densidade = parseFloat(yarnInputs.densidade.value) || 0;
+        const escala = parseFloat(yarnInputs.escala.value) || 0;
+
+        if (!tex || !cabos || !fios || !altura || !densidade || !escala) return 0;
+
+        const M = tex * cabos * fios;
+        const yarnPerStitch = (altura * 2 + 3) / 1000;
+        const stitchesX = 1000 / escala;
+        const stitchesY = densidade * 10;
+        return stitchesX * stitchesY * yarnPerStitch * M / 10_000_000;
+    }
+
     function recalculate() {
         if (!currentData) return;
 
-        // Formula: peso_cor_g = area_m2 × consumo_g_m2 × (1 + desperdicio%) × cor_percentagem
-        const consumo = parseFloat(consumoInput.value) || 0;
-        const desperdicio = parseFloat(desperdicioInput.value) || 0;
-        const factor = consumo * (1 + desperdicio / 100); // g/m2 with waste
+        const consumo_kg_m2 = calcConsumo();
+        const desperdicio = parseFloat(yarnInputs.desperdicio.value) || 0;
         const totalArea = currentData.totals.design_area_m2;
-        const hasInput = consumo > 0;
+        const hasInput = consumo_kg_m2 > 0;
         let totalKg = 0;
 
+        // Show calculation summary
+        if (hasInput) {
+            const M = (parseFloat(yarnInputs.tex.value) || 0) *
+                      (parseFloat(yarnInputs.cabos.value) || 0) *
+                      (parseFloat(yarnInputs.fios.value) || 0);
+            yarnSummary.innerHTML = '';
+            const items = [
+                ['Massa fio', M.toFixed(0) + ' Tex'],
+                ['Consumo', (consumo_kg_m2 * 1000).toFixed(0) + ' g/m2'],
+                ['c/ desperdicio', (consumo_kg_m2 * 1000 * (1 + desperdicio/100)).toFixed(0) + ' g/m2'],
+            ];
+            items.forEach(([label, val]) => {
+                const span = document.createElement('span');
+                span.textContent = label + ': ';
+                const strong = document.createElement('strong');
+                strong.textContent = val;
+                span.appendChild(strong);
+                yarnSummary.appendChild(span);
+            });
+        } else {
+            yarnSummary.textContent = 'Preencher todos os campos para calcular';
+            yarnSummary.style.fontStyle = 'italic';
+        }
+
         currentData.colours.forEach((c, i) => {
-            const grams = hasInput ? totalArea * factor * (c.percentage / 100) : 0;
-            const kg = grams / 1000;
+            const kg = hasInput ? totalArea * consumo_kg_m2 * (1 + desperdicio/100) * (c.percentage / 100) : 0;
             totalKg += kg;
 
             const cell = document.querySelector(`td.kg[data-colour-index="${i}"]`);
@@ -920,15 +1045,13 @@
     function buildExportData() {
         if (!currentData) return null;
 
-        const consumo = parseFloat(consumoInput.value) || 0;
-        const desperdicio = parseFloat(desperdicioInput.value) || 0;
-        const factor = consumo * (1 + desperdicio / 100);
+        const consumo_kg_m2 = calcConsumo();
+        const desperdicio = parseFloat(yarnInputs.desperdicio.value) || 0;
         const totalArea = currentData.totals.design_area_m2;
         let totalKg = 0;
 
         const colours = currentData.colours.map((c, i) => {
-            const grams = consumo > 0 ? totalArea * factor * (c.percentage / 100) : 0;
-            const kg = grams / 1000;
+            const kg = consumo_kg_m2 > 0 ? totalArea * consumo_kg_m2 * (1 + desperdicio/100) * (c.percentage / 100) : 0;
             totalKg += kg;
             return {
                 name: c.name,
@@ -947,16 +1070,24 @@
             source_file: currentData.source_file,
             source_type: currentData.source_type,
             dimensions: currentData.dimensions,
-            consumo_fio_g_m2: consumo,
-            desperdicio_pct: desperdicio,
-            consumo_com_desperdicio_g_m2: Math.round(factor * 100) / 100,
+            yarn_params: {
+                tex: parseFloat(yarnInputs.tex.value) || 0,
+                cabos: parseFloat(yarnInputs.cabos.value) || 0,
+                fios: parseFloat(yarnInputs.fios.value) || 0,
+                altura_pelo_mm: parseFloat(yarnInputs.altura.value) || 0,
+                densidade_10cm: parseFloat(yarnInputs.densidade.value) || 0,
+                escala_mm: parseFloat(yarnInputs.escala.value) || 0,
+                desperdicio_pct: desperdicio,
+                consumo_kg_m2: Math.round(consumo_kg_m2 * 1000) / 1000,
+                consumo_g_m2: Math.round(consumo_kg_m2 * 1000000) / 1000,
+            },
+            preview: currentData.preview || null,
             totals: {
                 design_area_m2: currentData.totals.design_area_m2,
                 tuft_length_m: currentData.totals.tuft_length_m,
                 total_yarn_kg: Math.round(totalKg * 1000) / 1000,
                 colour_count: currentData.totals.colour_count,
             },
-            preview: currentData.preview || null,
             colours: colours,
         };
     }
