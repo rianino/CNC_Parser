@@ -1,0 +1,12 @@
+.venv/
+.git/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+tests/
+*.brt
+*.zip
+app/.env
+app/uploads/
+iniciar.bat
+iniciar.sh

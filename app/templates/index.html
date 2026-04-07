@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analise de Vetorizacao — SRTAP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #F9FAFB;
+            --surface: #FFFFFF;
+            --ink: #18181B;
+            --steel: #71717A;
+            --muted: #A1A1AA;
+            --border: #E4E4E7;
+            --border-strong: #D4D4D8;
+            --accent: #DC2626;
+            --accent-hover: #B91C1C;
+            --success: #16A34A;
+            --success-bg: #F0FDF4;
+            --error-bg: #FEF2F2;
+            --error: #DC2626;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: 'Geist', -apple-system, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.5;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .header p {
+            font-size: 14px;
+            color: var(--steel);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--steel);
+        }
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Upload zone */
+        .upload-zone {
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 150ms ease-out, background 150ms ease-out;
+        }
+        .upload-zone:hover,
+        .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: #FEF2F2;
+        }
+        .upload-zone.has-file {
+            border-color: var(--success);
+            background: var(--success-bg);
+            border-style: solid;
+        }
+        .upload-zone svg {
+            width: 32px;
+            height: 32px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .upload-zone.has-file svg { color: var(--success); }
+        .upload-zone p {
+            font-size: 14px;
+            color: var(--steel);
+        }
+        .upload-zone .file-name {
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 15px;
+        }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+
+        /* Form elements */
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--steel);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-strong);
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--ink);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 150ms ease-out;
+        }
+        input[type="email"]:focus {
+            border-color: var(--ink);
+        }
+        input[type="email"]::placeholder {
+            color: var(--muted);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 150ms ease-out, opacity 150ms ease-out;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: var(--ink);
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #27272A;
+        }
+        .btn-accent {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-accent:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        /* Results */
+        .results { display: none; }
+        .results.visible { display: block; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .metric {
+            background: var(--surface);
+            padding: 16px 20px;
+        }
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+        .metric-unit {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--steel);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            background: #FAFAFA;
+            border-bottom: 2px solid var(--border);
+        }
+        thead th.num { text-align: right; }
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+        }
+        tbody td.num {
+            text-align: right;
+            font-family: 'Geist Mono', monospace;
+            font-size: 13px;
+        }
+        .colour-swatch {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid var(--border-strong);
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(120%);
+            transition: transform 200ms ease-out;
+            z-index: 100;
+        }
+        .toast.visible { transform: translateY(0); }
+        .toast.success { background: var(--success); color: #fff; }
+        .toast.error { background: var(--error); color: #fff; }
+
+        /* Loading */
+        .loading-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+        .loading-bar.active { display: block; }
+        .loading-bar::after {
+            content: '';
+            display: block;
+            height: 100%;
+            width: 40%;
+            background: var(--ink);
+            border-radius: 2px;
+            animation: loading 1s ease-in-out infinite;
+        }
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
+        /* Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--border) 25%, #f0f0f0 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            height: 20px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .source-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 4px;
+            background: var(--bg);
+            color: var(--steel);
+            border: 1px solid var(--border);
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>Analise de Vetorizacao</h1>
+            <p>Carregar ficheiro HITEX (.zop.zip) ou EFAB (.brt) para calcular dados de producao</p>
+        </div>
+
+        <!-- Upload -->
+        <div class="card">
+            <div class="card-body">
+                <div class="upload-zone" id="uploadZone">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M80 136l48-48 48 48M128 88v120M224 136v56a16 16 0 01-16 16H48a16 16 0 01-16-16v-56"/>
+                    </svg>
+                    <p id="uploadText">Arrastar ficheiro ou clicar para seleccionar</p>
+                    <input type="file" id="fileInput" accept=".zip,.brt">
+                </div>
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>
+                        <span id="resultFileName"></span>
+                        <span class="source-badge" id="resultType"></span>
+                    </h2>
+                </div>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-label">Dimensoes</div>
+                        <div class="metric-value" id="metricDims"></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Area Total</div>
+                        <div class="metric-value" id="metricArea"></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Comprimento Tuft</div>
+                        <div class="metric-value" id="metricLength"></div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Cores</div>
+                        <div class="metric-value" id="metricColours"></div>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cor</th>
+                            <th class="num">Area</th>
+                            <th class="num">%</th>
+                            <th class="num">Comprimento</th>
+                            <th class="num">Pontos</th>
+                            <th>Modo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="colourTable"></tbody>
+                </table>
+            </div>
+
+            <!-- Email -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Enviar por Email</h2>
+                </div>
+                <div class="card-body">
+                    <label for="emailInput">Destinatario</label>
+                    <input type="email" id="emailInput" placeholder="nome@empresa.pt">
+                    <div class="actions">
+                        <button class="btn btn-accent" id="sendBtn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M224 48L136 136M224 48l-56 176-24-88-88-24z"/>
+                            </svg>
+                            Enviar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadText = document.getElementById('uploadText');
+    const loadingBar = document.getElementById('loadingBar');
+    const results = document.getElementById('results');
+    const emailInput = document.getElementById('emailInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const toast = document.getElementById('toast');
+
+    let currentData = null;
+    const sendBtnOriginalHTML = sendBtn.innerHTML;
+
+    // Upload zone interactions
+    uploadZone.addEventListener('click', () => fileInput.click());
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('drag-over');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    // Email validation
+    emailInput.addEventListener('input', () => {
+        sendBtn.disabled = !emailInput.value.includes('@') || !currentData;
+    });
+
+    // Send email
+    sendBtn.addEventListener('click', sendEmail);
+
+    function setUploadStatus(fileName, statusText) {
+        uploadText.textContent = '';
+        if (fileName) {
+            const span = document.createElement('span');
+            span.className = 'file-name';
+            span.textContent = fileName;
+            uploadText.appendChild(span);
+            uploadText.appendChild(document.createElement('br'));
+        }
+        uploadText.appendChild(document.createTextNode(statusText));
+    }
+
+    async function handleFile(file) {
+        uploadZone.classList.remove('has-file');
+        uploadZone.classList.add('drag-over');
+        setUploadStatus(file.name, 'A processar...');
+        loadingBar.classList.add('active');
+        results.classList.remove('visible');
+        currentData = null;
+
+        const form = new FormData();
+        form.append('file', file);
+
+        try {
+            const res = await fetch('/analyse', { method: 'POST', body: form });
+            const data = await res.json();
+
+            if (data.error) {
+                showToast(data.error, 'error');
+                uploadZone.classList.remove('drag-over');
+                uploadText.textContent = 'Arrastar ficheiro ou clicar para seleccionar';
+                return;
+            }
+
+            currentData = data;
+            renderResults(data);
+
+            uploadZone.classList.remove('drag-over');
+            uploadZone.classList.add('has-file');
+            setUploadStatus(file.name, 'Processado com sucesso');
+
+        } catch (err) {
+            showToast('Erro de ligacao ao servidor', 'error');
+            uploadZone.classList.remove('drag-over');
+            uploadText.textContent = 'Arrastar ficheiro ou clicar para seleccionar';
+        } finally {
+            loadingBar.classList.remove('active');
+        }
+    }
+
+    function safeColourHex(hex) {
+        return /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : '#cccccc';
+    }
+
+    function setMetric(id, value, unit) {
+        const el = document.getElementById(id);
+        el.textContent = '';
+        el.appendChild(document.createTextNode(value + ' '));
+        const span = document.createElement('span');
+        span.className = 'metric-unit';
+        span.textContent = unit;
+        el.appendChild(span);
+    }
+
+    function renderResults(data) {
+        document.getElementById('resultFileName').textContent = data.source_file;
+        document.getElementById('resultType').textContent = data.source_type;
+
+        const d = data.dimensions;
+        const t = data.totals;
+
+        setMetric('metricDims', d.width_m.toFixed(2) + ' x ' + d.height_m.toFixed(2), 'm');
+        setMetric('metricArea', t.design_area_m2.toFixed(4), 'm2');
+        setMetric('metricLength', t.tuft_length_m.toFixed(1), 'm');
+        document.getElementById('metricColours').textContent = t.colour_count;
+
+        const tbody = document.getElementById('colourTable');
+        tbody.textContent = '';
+
+        data.colours.forEach(c => {
+            const tr = document.createElement('tr');
+
+            // Colour name cell with swatch
+            const tdName = document.createElement('td');
+            const swatch = document.createElement('span');
+            swatch.className = 'colour-swatch';
+            swatch.style.background = safeColourHex(c.colour_hex);
+            tdName.appendChild(swatch);
+            tdName.appendChild(document.createTextNode(' ' + (c.name || '')));
+            tr.appendChild(tdName);
+
+            // Numeric cells
+            const nums = [
+                c.area_m2.toFixed(4) + ' m2',
+                c.percentage.toFixed(1) + '%',
+                c.tuft_length_m.toFixed(1) + ' m',
+                c.stitch_count.toLocaleString('pt-PT'),
+            ];
+            nums.forEach(v => {
+                const td = document.createElement('td');
+                td.className = 'num';
+                td.textContent = v;
+                tr.appendChild(td);
+            });
+
+            // Mode cell
+            const tdMode = document.createElement('td');
+            tdMode.textContent = c.loop_cut_mode || '\u2014';
+            tr.appendChild(tdMode);
+
+            tbody.appendChild(tr);
+        });
+
+        results.classList.add('visible');
+        sendBtn.disabled = !emailInput.value.includes('@');
+    }
+
+    async function sendEmail() {
+        if (!currentData || !emailInput.value) return;
+
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'A enviar...';
+
+        try {
+            const res = await fetch('/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: emailInput.value,
+                    production_data: currentData
+                })
+            });
+            const data = await res.json();
+
+            if (data.error) {
+                showToast(data.error, 'error');
+            } else {
+                showToast(data.message, 'success');
+            }
+        } catch (err) {
+            showToast('Erro de ligacao ao servidor', 'error');
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = sendBtnOriginalHTML;
+        }
+    }
+
+    function showToast(msg, type) {
+        toast.textContent = msg;
+        toast.className = `toast ${type} visible`;
+        setTimeout(() => toast.classList.remove('visible'), 4000);
+    }
+    </script>
+</body>
+</html>

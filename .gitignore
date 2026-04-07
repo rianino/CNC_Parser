@@ -1,0 +1,10 @@
+.venv/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+app/.env
+app/uploads/
+
+# Sample vectorization files (large binaries)
+*.brt
+*.zop.zip

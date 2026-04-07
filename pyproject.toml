@@ -1,0 +1,26 @@
+[project]
+name = "srtap-vetorizacao"
+version = "0.1.0"
+description = "Analise de ficheiros de vetorizacao HITEX/EFAB para producao de tapetes"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "waitress>=3.0",
+    "Pillow>=10.0",
+    "numpy>=1.26",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+vetorizacao = "app.server:run"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["hitex_tool*", "app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
